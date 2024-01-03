@@ -1,0 +1,26 @@
+{
+  "name": "jsge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "example:balls": "npm run build && node ./dist/examples/balls/index.js",
+    "build": "npx rimraf ./dist && tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.1.1",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1",
+    "nanoid": "^3.0.0",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "raylib": "^0.14.0",
+    "reflect-metadata": "^0.2.1"
+  }
+}
