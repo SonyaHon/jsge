@@ -1,13 +1,15 @@
-import { nanoid } from "nanoid";
+// import { nanoid } from "nanoid";
 import { Constructor, JSGEErrno, JSGEError } from "../types";
-import { Commands, Maybe, QueryElement, Schedule, System } from "./types";
+import { Commands, Maybe, Schedule, System } from "./types";
 import { Entity } from "./entity";
 
 export class World {
   private readonly resources = new Map();
-  private registers = new Map<any, string[]>();
-  private entities = new Set<string>();
-  private componentData = new Map<Constructor<any>, Map<string, any>>();
+  private registers = new Map<any, number[]>();
+  private entities = new Set<number>();
+  private componentData = new Map<Constructor<any>, Map<number, any>>();
+
+  private entityIds = 0;
 
   public commands: Commands = {
     setResource: this.setResource.bind(this),
@@ -47,7 +49,8 @@ export class World {
   }
 
   spawn(...components: any[]) {
-    const eid = nanoid();
+    // const eid = nanoid();
+    const eid = this.entityIds++;
     for (const component of components) {
       const ctor = component.constructor;
       if (!this.componentData.has(ctor)) {
@@ -60,7 +63,7 @@ export class World {
     return new Entity(eid, this);
   }
 
-  private pushToRegisters(components: Constructor<any>[], eid: string) {
+  private pushToRegisters(components: Constructor<any>[], eid: number) {
     for (const q of this.registers.keys()) {
       const exclude = q.exclude || [];
       const query = q.query;
@@ -83,7 +86,7 @@ export class World {
     query: (Constructor<any> | Maybe<Constructor<any>>)[];
     exclude: Constructor<any>[];
   }) {
-    const eids = [];
+    const entityIds = [];
     const excluded = opts.exclude || [];
     const excludedEntities = new Set(
       ...excluded.flatMap(
@@ -104,19 +107,19 @@ export class World {
           }
         })
       ) {
-        eids.push(eid);
+        entityIds.push(eid);
       }
     }
-    this.registers.set(opts, eids);
+    this.registers.set(opts, entityIds);
   }
 
   private fetch(opts: {
     query: (Constructor<any> | Maybe<Constructor<any>>)[];
     exclude: Constructor<any>[];
   }) {
-    const eids = this.registers.get(opts)!;
+    const entityIds = this.registers.get(opts)!;
     const result: any[] = [];
-    for (const eid of eids) {
+    for (const eid of entityIds) {
       const entityResult = Array(opts.query.length);
       for (let i = 0; i < opts.query.length; i++) {
         let componentCtor = opts.query[i];

@@ -7,6 +7,23 @@ import { JSGEEvent } from "../events";
 import { Color } from "../utils/color";
 import { Schedule } from "../ecs/types";
 
+export class Time {
+  private _timeScale = 1;
+  constructor(private _deltaTime: number) {}
+
+  get deltaTime() {
+    return this._deltaTime * this._timeScale;
+  }
+
+  setTimeScale(value: number) {
+    this._timeScale = value;
+  }
+
+  updateDelta(value: number) {
+    this._deltaTime = value;
+  }
+}
+
 export class Window {
   private _width: number;
   private _height: number;
@@ -78,6 +95,7 @@ export class JSGEWindowNativePlugin extends JSGEPlugin {
     this.engine = engine;
 
     engine.ecs.setResource(new Window(800, 600, "JSGE Window"));
+    engine.ecs.setResource(new Time(0));
 
     engine.on(JSGEEvent.Exit, () => {
       this.isRunning = false;
@@ -97,6 +115,9 @@ export class JSGEWindowNativePlugin extends JSGEPlugin {
     }
 
     while (this.isRunning && !raylib.WindowShouldClose()) {
+      const time = this.engine!.ecs.getResource(Time)!;
+      time.updateDelta(raylib.GetFrameTime());
+
       for (const system of this.engine!.ecs.systems[Schedule.Update]) {
         system(this.engine!.ecs.commands);
       }
@@ -104,14 +125,13 @@ export class JSGEWindowNativePlugin extends JSGEPlugin {
       raylib.BeginDrawing();
       raylib.ClearBackground(win.clearColor);
 
-      if (win.shouldRenderFps) {
-        raylib.DrawFPS(5, 5);
-      }
-
       for (const system of this.engine!.ecs.systems[Schedule.Render]) {
         system(this.engine!.ecs.commands);
       }
 
+      if (win.shouldRenderFps) {
+        raylib.DrawFPS(5, 5);
+      }
       raylib.EndDrawing();
     }
 

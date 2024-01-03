@@ -3,7 +3,7 @@ import { World } from "./world";
 
 export class Entity {
   constructor(
-    public readonly id: string,
+    public readonly id: number,
     private readonly world: World
   ) {}
 

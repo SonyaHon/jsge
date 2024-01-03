@@ -38,18 +38,16 @@ export class JSGEEngine extends EventEmitter {
   /**
    *  Start's the application
    */
-  async run(): Promise<JSGEEngine> {
-    await Promise.all(
-      this.unregisteredPlugins.map((plugin) => {
-        const now = performance.now();
-        plugin.register(this);
-        JSGELogger.info(
-          `${plugin.constructor.name} plugin is registered - ${
-            performance.now() - now
-          }`
-        );
-      })
-    );
+  run(): JSGEEngine {
+    this.unregisteredPlugins.forEach((plugin) => {
+      const now = performance.now();
+      plugin.register(this);
+      JSGELogger.info(
+        `${plugin.constructor.name} plugin is registered - ${
+          performance.now() - now
+        }`
+      );
+    });
 
     if (!this.runner) {
       throw new JSGEError(JSGEErrno.JSGE_NO_RUNNER_SET);
